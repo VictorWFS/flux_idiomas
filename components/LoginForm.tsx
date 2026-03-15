@@ -1,14 +1,23 @@
 'use client';
 
 import {useState} from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { log } from 'console';
 
 export default function LoginForm() {
+    //instância do supabase
+    const supabase = createClient();
+
+    //instância do router
+    const router = useRouter();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState<{ email? :string; password? :string; }> ({});
+    const [errors, setErrors] = useState<{ email? :string; password? :string; general? :string }> ({});
 
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -17,20 +26,40 @@ export default function LoginForm() {
 
         if (!isValid) return;
 
+        setErrors({});
         setIsLoading(true);
 
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-
-        setIsLoading(false);
-
-        console.log("Formulário válido");
+        console.log('submit iniciou');
         
+        const {data, error} = await supabase.auth.signInWithPassword({
+            email: email.trim(),
+            password: password.trim(),
+        });
+
+        console.log('Login: ', {data, error});
+        
+
+        if (error) {
+            setErrors({
+                general: error.message,
+            });
+            setIsLoading(false);
+            return;
+        }
+
+        setIsLoading(false)
+
+        console.log('Direcionando agora');
+        
+        router.push('/study');
+        router.refresh();
     }
 
     function validateForm() {
         const newErrors: {
             email? :string;
             password? :string;
+            general?: string;
         } = {};
 
         if(!email.trim()) {
@@ -72,8 +101,8 @@ export default function LoginForm() {
                     onChange={(e) => setEmail(e.target.value)}
                     className='w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-white/40 focus:border-blue-700' 
                     />
-                    {errors.email && (
-                        <p className='mt-2 text-sm text-red-400'>{errors.email}</p>
+                    {errors.general && (
+                        <p className='mt-2 text-sm text-red-400'>{errors.general}</p>
                     )}
                 </div>
                 
@@ -88,8 +117,8 @@ export default function LoginForm() {
                     onChange={(e) => setPassword(e.target.value)}
                     className='w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-white/40 focus:border-blue-700'/>
 
-                    {errors.password && (
-                        <p className=' mt-2 text-sm text-red-400'>{errors.password}</p>
+                    {errors.general && (
+                        <p className=' mt-2 text-sm text-red-400'>{errors.general}</p>
                     )}
                     
                     
@@ -114,7 +143,7 @@ export default function LoginForm() {
 
                 <button
                     type="submit"
-                    className="w-full rounded-xl bg-blue-900 px-4 py-3 font-medium text-white transition hover:bg-blue-800 cursor-pointer"
+                    className="w-full rounded-xl    bg-blue-900 px-4 py-3 font-medium text-white transition hover:bg-blue-800 cursor-pointer"
                     disabled={isLoading}
                 >
                     {isLoading ? 'Entrando...' : 'Entrar'}
