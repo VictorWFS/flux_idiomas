@@ -86,6 +86,7 @@ export default function LoginForm() {
                     height={30}
                     priority 
                     className='scale-180'
+                    alt='Logo Flux Idiomas'
                 />
             </div>
 

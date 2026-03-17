@@ -46,7 +46,8 @@ export default async function StudyPage() {
                                 width = {100}
                                 height={30}
                                 priority 
-                                className='scale-190 mt-3'
+                                className='scale-190 mt-3 ml-2'
+                                alt="Logo flux idiomas"
                             />
           </div>
           <div>
@@ -57,8 +58,8 @@ export default async function StudyPage() {
 
 <section className="mb-10">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-white">Seus Decks</h2>
-            <p className="mt-1 text-white/50">Escolha um módulo para estudar hoje.</p>
+            <h2 className="text-2xl font-bold text-white ml-2">Seus Decks</h2>
+            <p className="mt-1 ml-2 text-white/50">Escolha um módulo para estudar hoje.</p>
           </div>
 
           {!decks || decks.length === 0 ? (
