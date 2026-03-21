@@ -51,7 +51,7 @@ export default function LoginForm() {
 
         console.log('Direcionando agora');
         
-        router.push('/study');
+        router.push('/dashboard');
         router.refresh();
     }
 
