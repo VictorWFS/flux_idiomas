@@ -4,16 +4,20 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function UserDropdown() {
+// 💡 1. Definimos que o componente recebe o email
+interface UserDropdownProps {
+  email: string;
+}
+
+// 💡 2. Passamos a prop aqui
+export default function UserDropdown({ email }: UserDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDarkTheme, setIsDarkTheme] = useState(true); // Controla o visual do sol/lua
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   
-  // Instanciamos o cliente do Supabase para o navegador (Client-side)
   const supabase = createClient();
 
-  // Fecha o dropdown automaticamente se o usuário clicar fora dele
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -24,11 +28,10 @@ export default function UserDropdown() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Função real de Logout conectada ao Supabase
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/login"); // Redireciona para a tela de login
-    router.refresh(); // Atualiza os estados do servidor para limpar o cache
+    router.push("/login");
+    router.refresh();
   };
 
   return (
