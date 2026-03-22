@@ -62,11 +62,12 @@ export default async function StudyPage() {
     // 💡 Adicionado px-4 md:px-8 para criar margens laterais que dão espaço para as setas do carrossel
     <section className="mb-12 pt-14 lg:pt-0 max-w-7xl mx-auto px-4 md:px-8">
       
-      <div className="mb-12">
-        <h2 className="text-4xl font-black text-white">
+        <div className="mb-12">
+        {/* 💡 text-slate-900 no modo claro, text-white no modo escuro */}
+        <h2 className="text-4xl font-black text-slate-900 dark:text-white transition-colors duration-300">
           Meus <span className="text-blue-500">Decks</span> 📚
         </h2>
-        <p className="mt-3 text-white/50 text-lg max-w-2xl leading-relaxed">
+        <p className="mt-3 text-slate-600 dark:text-white/50 text-lg max-w-2xl leading-relaxed transition-colors duration-300">
           Sua estante pessoal de conhecimento. Selecione seu nível e surfe na onda da fluência.
         </p>
       </div>
