@@ -1,112 +1,105 @@
 "use client";
 
-import { useRef } from "react";
-import Link from "next/link";
+import { useRef, useState, useEffect } from "react";
+import DeckCard from "./DeckCard";
 
 interface Deck {
   id: string;
   title: string;
   description: string;
-  level: string;
-  cover_image: string | null;
-  is_published: boolean;
-  created_at: string;
+  cards: number;
+  progress: number;
+  imageUrl: string;
 }
 
-export default function DeckCarousel({decks}: {decks: Deck[]}) {
-    const carouselRef = useRef<HTMLDivElement>(null);
+export default function DeckCarousel({ decks }: { decks: Deck[] }) {
+  const carouselRef = useRef<HTMLDivElement>(null);
+  
+  const [showLeftBlur, setShowLeftBlur] = useState(false);
+  const [showRightBlur, setShowRightBlur] = useState(true);
 
-    const scroll = (direction: "left" | "right") => {
-        if (carouselRef.current) {
-            const scrollAmount = direction === "left" ? -260 : 260;
+  const checkForScrollPosition = () => {
+    if (carouselRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
+      setShowLeftBlur(scrollLeft > 10); // Ajustado para 10px de tolerância
+      const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 10;
+      setShowRightBlur(!isAtEnd);
+    }
+  };
 
-            carouselRef.current.scrollBy({left: scrollAmount, behavior: "smooth"})
-        }
+  useEffect(() => {
+    checkForScrollPosition();
+    const currentRef = carouselRef.current;
+    if (currentRef) {
+      currentRef.addEventListener("scroll", checkForScrollPosition);
+    }
+    return () => {
+      if (currentRef) {
+        currentRef.removeEventListener("scroll", checkForScrollPosition);
+      }
     };
+  }, [decks]);
 
-    return (
-      <div className="relative group w-full">
-        {/* BOTÃO ESQUERDO (Aparece no hover do PC, some no Mobile) */}
-        <button
-          onClick={() => scroll("left")}
-          className="absolute left-2 top-1/2 z-10 -translate-y-1/2 opacity-0 transition-all duration-300 group-hover:opacity-100 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-black/30 backdrop-blur-md text-white shadow-lg border border-white/20 hover:bg-black/50 hover:scale-110"
-          aria-label="Rolar para esquerda"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
+  const scroll = (direction: "left" | "right") => {
+    if (carouselRef.current) {
+      const { scrollLeft, clientWidth } = carouselRef.current;
+      const scrollTo = direction === "left" ? scrollLeft - clientWidth : scrollLeft + clientWidth;
+      carouselRef.current.scrollTo({ left: scrollTo, behavior: "smooth" });
+    }
+  };
 
-        {/* A "TRILHA" DO CARROSSEL 
-        - flex, gap-5: Coloca os itens lado a lado com espaçamento.
-        - overflow-x-auto: Cria a barra de rolagem horizontal.
-        - snap-x snap-mandatory: Faz o card "encaixar" certinho na tela ao parar de rolar.
-        - Ocultador de scrollbar: Usamos classes do Tailwind para esconder a barra visual feia.
-      */}
-        <div
-          ref={carouselRef}
-          className="flex gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 pt-2 px-2 
-                   [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-        >
-          {decks.map((deck) => (
-            <Link
-              key={deck.id}
-              href={`/study/${deck.id}`}
-              className="snap-start shrink-0 w-[220px] sm:w-[240px]"
-            >
-              <div className="group/card flex h-80 flex-col justify-between rounded-3xl border border-white/10 bg-white/5 p-6 transition-all duration-200 hover:border-blue-500/50 hover:bg-white/10 cursor-pointer">
-                <div>
-                  <h3 className="text-xl font-semibold text-white transition-colors group-hover/card:text-blue-400 truncate">
-                    {deck.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-white/60 line-clamp-4">
-                    {deck.description}
-                  </p>
-                </div>
+  return (
+    <div className="relative group overflow-visible">
+      
+      {/* 💡 TRANSPARENT BLUR ESQUERDO: Usando backdrop-blur */}
+      <div 
+        className={`absolute left-0 top-0 bottom-8 w-16 z-20 pointer-events-none transition-opacity duration-300 backdrop-blur-[6px] [mask-image:linear-gradient(to_right,white_20%,transparent)] ${
+          showLeftBlur ? "opacity-100" : "opacity-0"
+        }`} 
+      />
 
-                <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4">
-                  <span className="rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400 border border-blue-500/20">
-                    {deck.level}
-                  </span>
-                  <span className="text-sm font-medium text-white/40 transition-colors group-hover/card:text-white">
-                    Estudar →
-                  </span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+      {/* 💡 TRANSPARENT BLUR DIREITO: Usando backdrop-blur */}
+      <div 
+        className={`absolute right-0 top-0 bottom-8 w-16 z-20 pointer-events-none transition-opacity duration-300 backdrop-blur-[6px] [mask-image:linear-gradient(to_left,white_20%,transparent)] ${
+          showRightBlur ? "opacity-100" : "opacity-0"
+        }`} 
+      />
 
-        {/* BOTÃO DIREITO */}
-        <button
-          onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 z-10 -translate-y-1/2 translate-x-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-slate-900/80 text-white shadow-lg border border-white/10 hover:bg-slate-800 hover:scale-110"
-          aria-label="Rolar para direita"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
+      {/* SETA ESQUERDA (Desktop - Z-30) */}
+      <button 
+        onClick={() => scroll("left")}
+        className={`absolute -left-4 md:-left-6 top-1/2 z-30 -translate-y-1/2 hidden h-14 w-14 items-center justify-center rounded-full bg-slate-800 text-white shadow-2xl border border-white/20 transition-all hover:bg-blue-600 hover:scale-110 md:flex ${
+          showLeftBlur ? "md:opacity-100" : "md:opacity-0 pointer-events-none"
+        }`}
+      >
+        <svg className="h-6 w-6 pr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
+      </button>
+
+      {/* CONTAINER DO CARROSSEL */}
+      <div 
+        ref={carouselRef}
+        className="flex gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-8 pt-4 px-4 [&::-webkit-scrollbar]:hidden"
+        style={{ scrollbarWidth: "none" }}
+      >
+        {decks.map((deck) => (
+          // Largura mobile w-[78vw] para garantir o 'leak' visual
+          <div key={deck.id} className="w-[78vw] md:w-[calc(33.333%-16px)] snap-center shrink-0 flex flex-col">
+            <DeckCard deck={deck} />
+          </div>
+        ))}
+        
+        <div className="w-1 md:hidden shrink-0"></div>
       </div>
-    );
+
+      {/* SETA DIREITA (Desktop - Z-30) */}
+      <button 
+        onClick={() => scroll("right")}
+        className={`absolute -right-4 md:-right-6 top-1/2 z-30 -translate-y-1/2 hidden h-14 w-14 items-center justify-center rounded-full bg-slate-800 text-white shadow-2xl border border-white/20 transition-all hover:bg-blue-600 hover:scale-110 md:flex ${
+          showRightBlur ? "md:opacity-100" : "md:opacity-0 pointer-events-none"
+        }`}
+      >
+        <svg className="h-6 w-6 pl-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+      </button>
+    </div>
+  );
 }
