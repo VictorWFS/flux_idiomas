@@ -66,12 +66,28 @@ export default function Sidebar() {
             Página Inicial
           </Link>
 
-          {/* 2. MEUS DECKS */}
+          {/* 💡 2. AGENDA DE AULAS (Novo Item) */}
+          <Link 
+            href="/agenda" 
+            onClick={() => setIsOpen(false)}
+            className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors border ${
+              pathname === '/agenda' || pathname.startsWith('/agenda/')
+                ? 'border-blue-200 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400' 
+                : 'border-transparent text-slate-600 dark:text-white/70 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Agenda de Aulas
+          </Link>
+
+          {/* 3. MEUS DECKS */}
           <Link 
             href="/study" 
             onClick={() => setIsOpen(false)}
             className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors border ${
-              pathname === '/study' || pathname.startsWith('/study/')
+              pathname === '/study' || (pathname.startsWith('/study/') && !pathname.includes('revisions'))
                 ? 'border-blue-200 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400' 
                 : 'border-transparent text-slate-600 dark:text-white/70 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'
             }`}
@@ -82,7 +98,7 @@ export default function Sidebar() {
             Meus Decks
           </Link>
 
-          {/* 3. MATERIAL DE AULA */}
+          {/* 4. MATERIAL DE AULA */}
           <Link 
             href="/materials" 
             onClick={() => setIsOpen(false)}
@@ -98,7 +114,7 @@ export default function Sidebar() {
             Material de Aula
           </Link>
 
-          {/* 4. DECKS P/ REVISAR */}
+          {/* 5. DECKS P/ REVISAR */}
           <Link 
             href="/revisions" 
             onClick={() => setIsOpen(false)}
